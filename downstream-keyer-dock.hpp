@@ -3,11 +3,12 @@
 #include <qmenu.h>
 #include <QTabWidget>
 #include <QVBoxLayout>
+#include <QFrame>
 #include <obs-frontend-api.h>
 #include "downstream-keyer.hpp"
 #include "obs-websocket-api.h"
 
-class DownstreamKeyerDock : public QWidget {
+class DownstreamKeyerDock : public QFrame {
 	Q_OBJECT
 private:
 	QTabWidget *tabs;
@@ -15,7 +16,7 @@ private:
 	bool loaded = false;
 	bool closing = false;
 	obs_view_t *view = nullptr;
-	obs_canvas_t *canvas = nullptr;
+	obs_weak_canvas_t *canvas = nullptr;
 	std::string viewName;
 	get_transitions_callback_t get_transitions = nullptr;
 	void *get_transitions_data = nullptr;
@@ -34,10 +35,10 @@ private:
 	void ClearKeyers();
 	void AddDefaultKeyer();
 	void ConfigClicked();
-	void SceneChanged();
 	void AddTransitionMenu(QMenu *tm, enum transitionType transition_type);
 	void AddExcludeSceneMenu(QMenu *tm);
 private slots:
+	void SceneChanged();
 	void Add(QString name = "");
 	void Rename();
 	void Remove(int index = -1);
@@ -50,7 +51,7 @@ public:
 	void SetTransitions(get_transitions_callback_t get_transitions = nullptr, void *get_transitions_data = nullptr);
 
 	inline obs_view_t *GetView() { return view; }
-	inline obs_canvas_t *GetCanvas() { return canvas; }
+	inline obs_canvas_t *GetCanvas() { return obs_weak_canvas_get_canvas(canvas); }
 
 	static void frontend_event(enum obs_frontend_event event, void *data);
 	static void frontend_save_load(obs_data_t *save_data, bool saving, void *data);
